@@ -81,7 +81,7 @@ FOLLOW(num) = {^, &, ), $}
         |{0-9} | ^	    | &	       | (     | )     | $    
 exp     |#1    | error 	| error	   | #1    | error | error 
 exp2	|error | #2  	| error    | error | #3    | #3
-term	|#4    | #5 	| error    | #4    | #5    | #5
+term	|#4    | error 	| error    | #4    | error | error
 term2	|error | #6     | #5       | error | #6    | #6
 factor	|#8    | error 	| error    | #7    | error | error 
 num	    |#9-#18| error 	| error	   | error | error | error 

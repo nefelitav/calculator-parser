@@ -10,14 +10,14 @@ class Calculator {
     public Calculator(InputStream in) throws IOException {
         this.in = in;
         this.lookahead = in.read();
-        this.result = 0;
     }
 
     public int eval() throws IOException, ParseError {
-        if (!exp() ){//|| this.lookahead != '\n') {
+        int result = exp();
+        if (this.lookahead != '\n') {
             throw new ParseError();
         }
-        return this.result;
+        return result;
     }
 
     public void consume(int symbol) throws IOException, ParseError {
@@ -32,51 +32,59 @@ class Calculator {
         return c - '0';
     }
 
-    public boolean exp() throws IOException, ParseError {
+    public int exp() throws IOException, ParseError {
         if (!num(this.lookahead) && this.lookahead != '(') {
             throw new ParseError();
         }
-        return (term() && exp2());
+        int term = term();
+        int exp2 = exp2(term);
+        return exp2;
     }
 
-    public boolean exp2() throws IOException, ParseError {
+    public int exp2(int term) throws IOException, ParseError {
         if (this.lookahead == '^') {
             consume('^');
-            return (term() && exp2());
+            int result = term ^ term();
+            int exp2 = exp2(result);
+            return exp2;
         }
-        return true;
+        return term;
     }
 
-    public boolean term() throws IOException, ParseError {
+    public int term() throws IOException, ParseError {
         if (!num(this.lookahead) && this.lookahead != '(') {
             throw new ParseError();
         }
-        return (factor() && term2());
+        int factor = factor();
+        int term = term2(factor);
+        return term;
     }
 
-    public boolean factor() throws IOException, ParseError {
+    public int factor() throws IOException, ParseError {
         if (!num(this.lookahead) && this.lookahead != '(') {
             throw new ParseError();
         }
         if (this.lookahead == '(') {
             consume('(');
-            if (exp() && this.lookahead == ')') {
-                return true;
+            int exp = exp();
+            if (this.lookahead == ')') {
+                return exp;
             }
             else {
-                System.out.println("Expected )");
-                return false;
+                throw new ParseError();
             }
         }
-        return true;
+        return this.lookahead;
     }
 
-    public boolean term2() throws IOException, ParseError {
+    public int term2(int factor) throws IOException, ParseError {
         if (this.lookahead == '&') {
             consume('&');
-            return (factor() && term2());
+            int result = factor ^ factor();
+            int term2 = term2(result);
+            return term2;
         }
-        return true;
+        return factor;
     }
 
     public boolean num(int c) {

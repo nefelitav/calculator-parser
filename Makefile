@@ -1,13 +1,20 @@
-PATH = src/
-CLASSES = Main
-JC	 = javac
-FLAGS = -g
+JFLAGS = -g
+JC = javac
+PATH = src
+CLASSES = \
+        Main.java 
+		
+.SUFFIXES: .java .class
 
-all: $(PATH)Main.java 
-	$(JC) $(PATH)Main.java
+.java.class:
+	$(JC) $(JFLAGS) $*.java
 
-run: $(PATH)Main.class
-	java Main
+default: classes
+
+classes: $(CLASSES:.java=.class)
+
+run: 
+	java -classpath $(PATH) Main
 
 clean:
 	$(RM) *.class

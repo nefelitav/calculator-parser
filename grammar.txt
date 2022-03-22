@@ -3,8 +3,6 @@ op -> + | - | * | /
 num -> digit | digit num
 digit -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
-
-
 #1   exp -> term exp2
 #2   exp2 -> + term exp2
 #3         | - term exp2
@@ -28,15 +26,6 @@ digit -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 #21        | 7 
 #22        | 8 
 #23        | 9
-
-FOLLOW(exp) = {EOF, )}
-FOLLOW(exp2) = {EOF}
-FOLLOW(term) = FIRST(exp2) = {+, -, ε, EOF}
-FOLLOW(term2) = {EOF}
-FOLLOW(factor) = FIRST(term2) = {*, /, ε, EOF}
-FOLLOW(num) = {EOF}
-FOLLOW(digit) = FIRST(digit2) = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ε, EOF}
-FOLLOW(digit2) = {EOF}
 
 FIRST(exp) = {(, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 FIRST(exp2) = {+, -, ε}
@@ -71,4 +60,21 @@ FIRST+(21) = {7}
 FIRST+(22) = {8}
 FIRST+(23) = {9}
 
+FOLLOW(exp) = {$, )}
+FOLLOW(exp2) = {$, )}
+FOLLOW(term) = {+, -, $, )}
+FOLLOW(term2) = {+, -, $, )}
+FOLLOW(factor) = {*, /, +, -, ), $}
+FOLLOW(num) = {*, /, +, -, ), $}
+FOLLOW(digit) = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, *, /, +, -, ), $}
+FOLLOW(digit2) = {*, /, +, -, ), $}
 
+		| +,-		| *,/	       | {0-9} | (     | )     | $    
+exp		| error 	| error	       | error | error | error | error 
+exp2	| term exp2	| error 	   | error | error | error | error 
+term	| error		| error        | error | error | error | error 
+term2	| error		| factor term2 | error | error | error | error  
+factor	| error 	| error	       | error | error | error | error 
+num		| error 	| error	       | error | error | error | error 
+digit	| error 	| error        | do nothing | error | error | error 
+digit2	| error 	| error	       | error | error | error | error 

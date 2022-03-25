@@ -5,7 +5,6 @@ import java.io.InputStream;
 class Calculator {
     private final InputStream in;
     private int lookahead;
-    private int result;
 
     public Calculator(InputStream in) throws IOException {
         this.in = in;
@@ -14,7 +13,7 @@ class Calculator {
 
     public int eval() throws IOException, ParseError {
         int result = exp();
-        if (this.lookahead != '\n') {
+        if (this.lookahead != '\n' && this.lookahead != -1) {
             throw new ParseError();
         }
         return result;
@@ -25,7 +24,6 @@ class Calculator {
             throw new ParseError();
         }
         this.lookahead = in.read();
-
     }
 
     public int evalDigit(int c) {
@@ -42,13 +40,16 @@ class Calculator {
     }
 
     public int exp2(int term) throws IOException, ParseError {
+        if (this.lookahead == ')' || this.lookahead == '\n' || this.lookahead == -1) {
+            return term;
+        }
         if (this.lookahead == '^') {
             consume('^');
             int result = term ^ term();
             int exp2 = exp2(result);
             return exp2;
         }
-        return term;
+        throw new ParseError();
     }
 
     public int term() throws IOException, ParseError {
@@ -62,13 +63,16 @@ class Calculator {
     
     public int term2(int factor) throws IOException, ParseError {
         consume(this.lookahead);
+        if (this.lookahead == ')' || this.lookahead == '\n' || this.lookahead == -1 || this.lookahead == '^') {
+            return factor;
+        }
         if (this.lookahead == '&') {
             consume('&');
             int result = factor & factor();
             int term2 = term2(result);
             return term2;
         }
-        return factor;
+        throw new ParseError();
     }
 
     public int factor() throws IOException, ParseError {
@@ -103,6 +107,7 @@ class ParseError extends Exception {
 class Main {
     public static void main(String[] args) {
         try {
+            System.out.println("please type your arithmethic expression:");
             Calculator c = new Calculator(System.in);
             System.out.println("result = " + c.eval());
         } catch (IOException | ParseError e) {
